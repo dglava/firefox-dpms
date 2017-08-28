@@ -13,8 +13,13 @@ is closed.
 
 #### How to install
 Run `$ python setup.py install`   
-It requires [python-pulse-control](https://github.com/mk-fg/python-pulse-control).
+It requires [python-pulse-control](https://github.com/mk-fg/python-pulse-control)
+and obviously Pulseaudio.
+Arch Linux users can install it from the provided PKGBUILD.
 
 #### How to use
-`$ firefox-dpms`
-or enable the systemd user service `systemctl --user enable firefox-dpms`
+Run `$ firefox-dpms`
+
+or
+
+Enable the systemd user service `$ systemctl --user enable firefox-dpms`
