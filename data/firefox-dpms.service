@@ -8,4 +8,4 @@ Type=simple
 ExecStart=/usr/bin/firefox-dpms
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
