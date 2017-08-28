@@ -1,0 +1,98 @@
+#!/usr/bin/env python
+
+# Firefox-DPMS
+# Copyright (C) 2017 Dino Duratović <dinomol at mail dot com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import pulsectl
+import subprocess
+import sys
+import signal
+
+def get_events(event):
+    """Get the current event."""
+    # using a global variable because I didn not find a better way
+    # to make this available in main(). Also considered a list in main()
+    # to which we would append the event information from here.
+    global current_event
+    current_event = event
+    raise pulsectl.PulseLoopStop
+
+def event_wait(pulse):
+    """Main pulsectl event loop."""
+    pulse.event_mask_set('sink_input')
+    pulse.event_callback_set(get_events)
+    pulse.event_listen()
+
+def check_firefox(pulse, index):
+    """Verify that Firefox is playing video/sound.
+
+    Queries the current sink-inputs. Checks if the sink-input
+    (from the passed index) is Firefox by comparing its media and
+    application names.
+    """
+    for sink in pulse.sink_input_list():
+        # index is the index of the event we received
+        if sink.index == index \
+                and sink.proplist["media.name"] == "AudioStream" \
+                and sink.proplist["application.name"] == "Firefox":
+            return True
+
+def toggle_dpms(arg):
+    """Change DPMS settings."""
+    if arg == "on":
+        subprocess.run(["xset", "+dpms"])
+        print("DPMS turned ON", flush=True)
+    elif arg == "off":
+        subprocess.run(["xset", "-dpms"])
+        print("DPMS turned OFF", flush=True)
+
+def main():
+    """Runs the main loop which detects Firefox sound activity.
+
+    The program waits for Pulseaudio events. Based on the events
+    if Firefox is detected to be playing audio, DPMS settings are turned
+    off. Then when the event which signals that Firefox has stopped
+    playing audio happens, DPMS settings are restored.
+    """
+    def handleSig(signum, frame):
+        """Run upon receiving SIGTERM and SIGINT."""
+        toggle_dpms("on")
+        sys.exit()
+
+    # handles SIGTERM and SIGINT
+    signal.signal(signal.SIGTERM, handleSig)
+    signal.signal(signal.SIGINT, handleSig)
+
+    pulse = pulsectl.Pulse()
+    # holds firefox's current (running instance's) sink index
+    firefox_sink_index = None
+
+    while True:
+        event_wait(pulse)
+        # wait for a "new" event, creating a Firefox sink
+        if current_event.t == "new":
+            if check_firefox(pulse, current_event.index):
+                toggle_dpms("off")
+                # save the index of the running Firefox
+                firefox_sink_index = current_event.index
+        # wait for a "remove" event and check if Firefox's sink
+        # was removed by comparing it to the index we got when Firefox
+        # was started
+        elif current_event.t == "remove" \
+                and current_event.index == firefox_sink_index:
+            toggle_dpms("on")
+
+main()
