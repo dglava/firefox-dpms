@@ -18,8 +18,11 @@ and obviously Pulseaudio.
 Arch Linux users can install it from the provided PKGBUILD.
 
 #### How to use
-Run `$ firefox-dpms`
+Either:
 
-or
+* Run `$ firefox-dpms`
+* Enable the systemd user service `$ systemctl --user enable firefox-dpms`
 
-Enable the systemd user service `$ systemctl --user enable firefox-dpms`
+**Note:** The systemd user session must be aware of the DISPLAY environment
+variable. You can uncomment Environment in the provided service file
+or use a user or global systemd config (DefaultEnvironment).
