@@ -36,17 +36,14 @@ def event_wait(pulse):
     pulse.event_callback_set(get_events)
     pulse.event_listen()
 
-def check_firefox(pulse, index):
+def check_firefox(pulse):
     """Verify that Firefox is playing video/sound.
 
-    Queries the current sink-inputs. Checks if the sink-input
-    (from the passed index) is Firefox by comparing its media and
-    application names.
+    Queries the current sink-inputs. Checks if a sink-input is Firefox
+    by looking for the media and application names.
     """
     for sink in pulse.sink_input_list():
-        # index is the index of the event we received
-        if sink.index == index \
-                and sink.proplist["media.name"] == "AudioStream" \
+        if sink.proplist["media.name"] == "AudioStream" \
                 and sink.proplist["application.name"] == "Firefox":
             return True
 
@@ -62,10 +59,11 @@ def toggle_dpms(arg):
 def main():
     """Runs the main loop which detects Firefox sound activity.
 
-    The program waits for Pulseaudio events. Based on the events
-    if Firefox is detected to be playing audio, DPMS settings are turned
-    off. Then when the event which signals that Firefox has stopped
-    playing audio happens, DPMS settings are restored.
+    The program waits for Pulseaudio events.
+    When it detects a "new" event and a Firefox sink is active,
+    it turns DPMS off, because that means Firefox is playing back video.
+    When it detects a "remove" event and no Firefox sinks are active,
+    it turns DPMS on, because that means Firefox stopped playing video.
     """
     def handleSig(signum, frame):
         """Run upon receiving SIGTERM and SIGINT."""
@@ -77,22 +75,17 @@ def main():
     signal.signal(signal.SIGINT, handleSig)
 
     pulse = pulsectl.Pulse()
-    # holds firefox's current (running instance's) sink index
-    firefox_sink_index = None
+    DPMS_off = False
 
     while True:
         event_wait(pulse)
-        # wait for a "new" event, creating a Firefox sink
-        if current_event.t == "new":
-            if check_firefox(pulse, current_event.index):
-                toggle_dpms("off")
-                # save the index of the running Firefox
-                firefox_sink_index = current_event.index
-        # wait for a "remove" event and check if Firefox's sink
-        # was removed by comparing it to the index we got when Firefox
-        # was started
-        elif current_event.t == "remove" \
-                and current_event.index == firefox_sink_index:
+        # wait for a "new" event that creates a Firefox sink
+        if current_event.t == "new" and check_firefox(pulse) and not DPMS_off:
+            toggle_dpms("off")
+            DPMS_off = True
+        # wait for a "remove" event and no firefox sinks active
+        elif current_event.t == "remove" and not check_firefox(pulse):
             toggle_dpms("on")
+            DPMS_off = False
 
 main()
