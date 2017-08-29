@@ -2,7 +2,7 @@
 Disables DPMS (screen blanking) when Firefox is playing back video.
 
 I couldn't find a way to make Firefox suspend the DPMS settings when
-it was playing back videos on website (YouTube for example). This
+it was playing back videos on a website (YouTube for example). This
 accomplishes exactly that, but in a hacky way.
 
 It works by checking if there are audio streams coming from Firefox
