@@ -20,6 +20,23 @@ import pulsectl
 import subprocess
 import sys
 import signal
+import argparse
+
+def get_options():
+    """Parses command line options and returns them."""
+    args = argparse.ArgumentParser()
+    args.add_argument(
+        "-c",
+        "--command-on",
+        help="command to run when video/audio streams are detected",
+        )
+    args.add_argument(
+        "-o",
+        "--command-off",
+        help="command to run when all video/audio streams stop"
+        )
+
+    return args.parse_args()
 
 def get_events(event):
     """Get the current event."""
@@ -56,7 +73,16 @@ def toggle_dpms(arg):
         subprocess.run(["xset", "-dpms"])
         print("DPMS turned OFF", flush=True)
 
-def main():
+def run_command(command):
+    """Runs a shell command."""
+    if command:
+        try:
+            subprocess.run(command.split())
+            print("Executing: {}".format(command))
+        except FileNotFoundError:
+            print("Error executing command: {}. Command not found".format(command))
+
+def main(options):
     """Runs the main loop which detects Firefox sound activity.
 
     The program waits for Pulseaudio events.
@@ -83,9 +109,12 @@ def main():
         if current_event.t == "new" and check_firefox(pulse) and not DPMS_off:
             toggle_dpms("off")
             DPMS_off = True
+            run_command(options.command_on)
         # wait for a "remove" event and no firefox sinks active
         elif current_event.t == "remove" and not check_firefox(pulse):
             toggle_dpms("on")
             DPMS_off = False
+            run_command(options.command_off)
 
-main()
+options = get_options()
+main(options)
