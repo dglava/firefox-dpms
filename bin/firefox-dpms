@@ -82,6 +82,11 @@ def run_command(command):
         except FileNotFoundError:
             print("Error executing command: {}. Command not found".format(command))
 
+def handle_sig(signum, frame):
+    """Run upon receiving a signal."""
+    toggle_dpms("on")
+    sys.exit()
+
 def main(options):
     """Runs the main loop which detects Firefox sound activity.
 
@@ -91,14 +96,9 @@ def main(options):
     When it detects a "remove" event and no Firefox sinks are active,
     it turns DPMS on, because that means Firefox stopped playing video.
     """
-    def handleSig(signum, frame):
-        """Run upon receiving SIGTERM and SIGINT."""
-        toggle_dpms("on")
-        sys.exit()
-
     # handles SIGTERM and SIGINT
-    signal.signal(signal.SIGTERM, handleSig)
-    signal.signal(signal.SIGINT, handleSig)
+    signal.signal(signal.SIGTERM, handle_sig)
+    signal.signal(signal.SIGINT, handle_sig)
 
     pulse = pulsectl.Pulse()
     DPMS_off = False
