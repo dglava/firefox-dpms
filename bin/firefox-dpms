@@ -82,7 +82,7 @@ def run_command(command):
             subprocess.run(command.split())
             print("Executing: {}".format(command))
         except FileNotFoundError:
-            print(err_msg.format(command), file=sys.stderr)
+            print(err_msg.format(command), file=sys.stderr, flush=True)
 
 def handle_sig(signum, frame):
     """Run upon receiving a signal."""
