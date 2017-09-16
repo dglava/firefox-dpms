@@ -10,6 +10,5 @@ setup(
     license = "GNU GPLv3",
     install_requires = ["pulsectl"],
 
-    scripts = ["bin/firefox-dpms"],
-    data_files = [("/usr/lib/systemd/user", ["data/firefox-dpms.service"])]
+    scripts = ["bin/firefox-dpms"]
     )

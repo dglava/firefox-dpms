@@ -18,10 +18,8 @@ and obviously Pulseaudio.
 Arch Linux users can install it from the provided PKGBUILD.
 
 #### How to use
-Either:
 
 * Run `$ firefox-dpms`
-* Enable the systemd user service `$ systemctl --user enable firefox-dpms`
 
 You can specify an additional command to be run alongside the DPMS
 settings change. For example you can toggle additional screensavers.
@@ -29,7 +27,3 @@ Use:
 
 * `-c` or `--command-on` to run it when video/audio streams are detected
 * `-o` or `--command-off` to run it when streams stop
-
-**Note:** The systemd user session must be aware of the DISPLAY environment
-variable. You can uncomment Environment in the provided service file
-or use a user or global systemd config (DefaultEnvironment).
