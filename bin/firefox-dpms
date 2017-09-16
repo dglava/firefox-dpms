@@ -75,12 +75,14 @@ def toggle_dpms(arg):
 
 def run_command(command):
     """Runs a shell command."""
+    err_msg = "Error executing command: {}. Command not found"
+
     if command:
         try:
             subprocess.run(command.split())
             print("Executing: {}".format(command))
         except FileNotFoundError:
-            print("Error executing command: {}. Command not found".format(command))
+            print(err_msg.format(command), file=sys.stderr)
 
 def handle_sig(signum, frame):
     """Run upon receiving a signal."""
