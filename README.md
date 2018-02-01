@@ -15,7 +15,8 @@ is closed.
 Run `$ python setup.py install`   
 It requires [python-pulse-control](https://github.com/mk-fg/python-pulse-control)
 and obviously Pulseaudio.
-Arch Linux users can install it from the provided PKGBUILD.
+Arch Linux users can install it from the PKGBUILD in the
+[AUR](https://aur.archlinux.org/packages/firefox-dpms-git/).
 
 #### How to use
 
