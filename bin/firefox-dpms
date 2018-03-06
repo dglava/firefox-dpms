@@ -22,6 +22,8 @@ import sys
 import signal
 import argparse
 
+browsers = ("Firefox", "Firefox Developer Edition", "AudioIPC Server")
+
 def get_options():
     """Parses command line options and returns them."""
     args = argparse.ArgumentParser()
@@ -61,7 +63,7 @@ def check_firefox(pulse):
     """
     for sink in pulse.sink_input_list():
         if sink.proplist["media.name"] == "AudioStream" \
-                and sink.proplist["application.name"] == "Firefox":
+                and sink.proplist["application.name"] in browsers:
             return True
 
 def toggle_dpms(arg):
