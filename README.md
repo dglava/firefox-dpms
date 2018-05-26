@@ -1,6 +1,10 @@
 # Firefox-DPMS
 Disables DPMS (screen blanking) when Firefox is playing back video.
 
+**NOTE:** **this is a hacky way to solve the problem. A better approach
+would be utilizing the *org.freedesktop.ScreenSaver* dbus interface.
+I have no plans right now to work on it, hopefully someone else will.**
+
 I couldn't find a way to make Firefox suspend the DPMS settings when
 it was playing back videos on a website (YouTube for example). This
 accomplishes exactly that, but in a hacky way.
