@@ -42,7 +42,7 @@ def get_options():
 
 def get_events(event):
     """Get the current event."""
-    # using a global variable because I didn not find a better way
+    # using a global variable because I did not find a better way
     # to make this available in main(). Also considered a list in main()
     # to which we would append the event information from here.
     global current_event
@@ -82,7 +82,7 @@ def run_command(command):
     if command:
         try:
             subprocess.run(command.split())
-            print("Executing: {}".format(command))
+            print("Executing: {}".format(command), flush=True)
         except FileNotFoundError:
             print(err_msg.format(command), file=sys.stderr, flush=True)
 
